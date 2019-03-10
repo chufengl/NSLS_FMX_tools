@@ -152,10 +152,30 @@ def file_hit_finder(Eiger_file_name,thld,min_pix,min_peak,mask_file='None'):
 	print('HIT rate: %.2f %%'%(100*HIT_counter/img_block.shape[0]))
 	print('HIT events:')
 	print(HIT_event_no_list)
+	
+	#lf=open(os.path.split(Eiger_file_name)[1]+'HIT.log','w')
+	#lf.write('%s'%(Eiger_file_name))
+	#lf.write('\n %d   out of  %d  hits found!'%(HIT_counter,img_block.shape[0]))
+	#lf.write('\n HIT rate: %.2f %%'%(100*HIT_counter/img_block.shape[0]))
+	#lf.write('\n HIT events:\n')
+	#for event in HIT_event_no_list:
+		#lf.write('%d \n'%event)
+	#lf.write('-----------------')
+	#lf.close()
+	
+	total_event_no=img_block.shape[0]
+	hit_rate=100*HIT_counter/total_event_no	
 
-	return None
 
 
+	return total_event_no, HIT_counter, hit_rate, HIT_event_no_list
+
+def Eiger_file_list(find_list_file):
+	find_list_file=os.path.abspath(find_list_file)
+	l=open(find_list_file,'r')
+	list_s=l.readlines()
+	
+	return list_s
 
 #if __name__=='__main__':
 	
@@ -174,11 +194,33 @@ def file_hit_finder(Eiger_file_name,thld,min_pix,min_peak,mask_file='None'):
 
 
 if __name__=='__main__':
-
-	Eiger_file_name=sys.argv[1]
+	
+	find_list_file=sys.argv[1]
+	find_list_file=os.path.abspath(find_list_file)
+	list_s=Eiger_file_list(find_list_file)
+	#Eiger_file_name=sys.argv[1]
 	thld=int(sys.argv[2])
 	min_pix=int(sys.argv[3])
 	mask_file=sys.argv[4]
 	min_peak=int(sys.argv[5])
-	file_hit_finder(Eiger_file_name,thld,min_pix,min_peak,mask_file=mask_file)
+	
 
+	lf=open(os.path.split(find_list_file)[1]+'HIT.log','w',1)
+	lf.write('Eiger file list: %s\n'%(find_list_file))
+	lf.write('thld: %d\n'%(thld))
+	lf.write('min_pix: %d\n'%(min_pix))
+	lf.write('min_peak: %d\n'%(min_peak))
+	lf.write('mask_file: %s\n'%(mask_file))
+	ef=open(os.path.split(find_list_file)[1]+'eve.lst','w',1)
+	for l in range(len(list_s)):
+		Eiger_file_name=list_s[l][:-1]
+		print('hit finding %d file  out of %d    \n%s'%(l+1,len(list_s),list_s[l]))
+		total_event_no, HIT_counter, hit_rate,HIT_event_no_list=file_hit_finder(list_s[l][:-1],thld,min_pix,min_peak,mask_file=mask_file)
+		lf.write('%s'%(Eiger_file_name))
+		lf.write('\n %d   out of  %d  hits found!'%(HIT_counter,total_event_no))
+		lf.write('\n HIT rate: %.2f %%'%(hit_rate))
+		for event in HIT_event_no_list:
+                	ef.write('%s //%d\n'%(Eiger_file_name,event))
+	lf.close()
+	ef.close()
+	print('!!!!ALL DONE!!!')
