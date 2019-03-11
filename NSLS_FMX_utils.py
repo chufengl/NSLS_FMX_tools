@@ -90,11 +90,31 @@ def single_peak_finder(img_arry,Eiger_file_name,frame_no,thld,min_pix,mask_file=
 
 
 
-def file_hit_finder(Eiger_file_name,thld,min_pix,min_peak,mask_file='None'):
+def file_hit_finder(Eiger_file_name,thld,min_pix,min_peak,mask_file='None',Region='ALL'):
+
 	
+	
+	if Region=='ALL':
+		x_min=0
+		y_min=0
+		x_max=4371
+		y_max=4150
+	elif Region=='Q':
+		x_min=2185
+		y_min=2075
+		x_max=4370
+		y_max=4150
+	elif Region=='C':
+		x_min=1092
+		y_min=1037
+		x_max=3278
+		y_max=3112
+	else:
+		sys.exit('Check the Region option: ALL,Q,C')
 	Eiger_file_name=os.path.abspath(Eiger_file_name)
 	db=h5py.File(Eiger_file_name,'r')
-	img_block=db['/entry/data/data'].value
+	img_block=db['/entry/data/data'][:,x_min:x_max,y_min:y_max]
+	
 	db.close()
 	print('--------------')
 	print(Eiger_file_name)
@@ -103,7 +123,7 @@ def file_hit_finder(Eiger_file_name,thld,min_pix,min_peak,mask_file='None'):
 	if mask_file is not ' None':
 		mask_file=os.path.abspath(mask_file)
 		m=h5py.File(mask_file,'r')
-		mask=m['/data/data'].value.astype(bool)
+		mask=m['/data/data'][x_min:x_max,y_min:y_max].astype(bool)
 		m.close()
 	elif mask_file is 'None':
 		mask=np.ones_like(img_arry).astype(bool)
@@ -203,7 +223,7 @@ if __name__=='__main__':
 	min_pix=int(sys.argv[3])
 	mask_file=sys.argv[4]
 	min_peak=int(sys.argv[5])
-	
+	Region=sys.argv[6]
 
 	lf=open(os.path.split(find_list_file)[1]+'HIT.log','w',1)
 	lf.write('Eiger file list: %s\n'%(find_list_file))
@@ -215,7 +235,7 @@ if __name__=='__main__':
 	for l in range(len(list_s)):
 		Eiger_file_name=list_s[l][:-1]
 		print('hit finding %d file  out of %d    \n%s'%(l+1,len(list_s),list_s[l]))
-		total_event_no, HIT_counter, hit_rate,HIT_event_no_list=file_hit_finder(list_s[l][:-1],thld,min_pix,min_peak,mask_file=mask_file)
+		total_event_no, HIT_counter, hit_rate,HIT_event_no_list=file_hit_finder(list_s[l][:-1],thld,min_pix,min_peak,mask_file=mask_file,Region=Region)
 		lf.write('%s'%(Eiger_file_name))
 		lf.write('\n %d   out of  %d  hits found!'%(HIT_counter,total_event_no))
 		lf.write('\n HIT rate: %.2f %%'%(hit_rate))
