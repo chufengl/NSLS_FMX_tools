@@ -147,8 +147,8 @@ def dat_write(master_dict,dat_file_name,ne_arry):
 	print(ne_arry.shape[0])	
 	file_name_list_pad=file_name_list_pad[0:ne_arry.shape[0]]
 	
-	cname0='h5_file_name'
-	cname1='event_no'
+	cname0='ifile'
+	cname1='event'
 	cname2='no_of_spots'
 	cname3='average_Int'
 	cname4='Resolution'
