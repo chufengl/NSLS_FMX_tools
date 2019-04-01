@@ -125,7 +125,7 @@ def file_hit_finder(Eiger_file_name,thld,min_pix,min_peak,mask_file='None',Regio
 		mask=m['/data/data'][x_min:x_max,y_min:y_max].astype(bool)
 		m.close()
 	elif mask_file=='None':
-		mask=np.ones_like(img_arry).astype(bool)
+		mask=np.ones_like(img_block[0,:,:]).astype(bool)
 	else:
 		sys.exit('the mask file option is inproper.')
 	
@@ -213,54 +213,46 @@ def Eiger_file_list(find_list_file):
 
 
 if __name__=='__main__':
-	
-	comm=MPI.COMM_WORLD
-	size=comm.Get_size()
-	rank=comm.Get_rank()
+    
+    t=TicToc()
+    t.tic()
+    comm=MPI.COMM_WORLD
+    size=comm.Get_size()
+    rank=comm.Get_rank()
+    find_list_file=sys.argv[1]
+    find_list_file=os.path.abspath(find_list_file)
+    print('I am rank %d of %d'%(rank,size))
+    list_s=Eiger_file_list(find_list_file)
+    #Eiger_file_name=sys.argv[1]
+    thld=int(sys.argv[2])
+    min_pix=int(sys.argv[3])
+    mask_file=sys.argv[4]
+    min_peak=int(sys.argv[5])
+    Region=sys.argv[6]
+    job_total_load=len(list_s)
+    job_per_load=np.ceil(job_total_load/size).astype(np.int16)
+    job_list=range(rank*job_per_load,np.minimum((rank+1)*job_per_load,job_total_load))
+    #print(find_list_file)
+    #print(job_list)
+    lf=open(os.path.split(find_list_file)[1]+'HIT-rank%d.log'%(rank),'w',1)
+    lf.write('Eiger file list: %s\n'%(find_list_file))
+    lf.write('thld: %d\n'%(thld))
+    lf.write('min_pix: %d\n'%(min_pix))
+    lf.write('min_peak: %d\n'%(min_peak))
+    lf.write('mask_file: %s\n'%(mask_file))
+    ef=open(os.path.split(find_list_file)[1]+'eve-rank%d.lst'%(rank),'w',1)
 
-
-
-
-
-	find_list_file=sys.argv[1]
-	find_list_file=os.path.abspath(find_list_file)
-	list_s=Eiger_file_list(find_list_file)
-	#Eiger_file_name=sys.argv[1]
-	thld=int(sys.argv[2])
-	min_pix=int(sys.argv[3])
-	mask_file=sys.argv[4]
-	min_peak=int(sys.argv[5])
-	Region=sys.argv[6]
-
-
-	job_total_load=len(list_s)
-	job_per_load=np.ceil(job_total_load/size)
-	job_list=range(rank*job_per_load,np.minimum((rank+1)*job_per_load,job_total_load)
-
-
-
-	lf=open(os.path.split(find_list_file)[1]+'HIT-rank%d.log'%(rank),'w',1)
-	lf.write('Eiger file list: %s\n'%(find_list_file))
-	lf.write('thld: %d\n'%(thld))
-	lf.write('min_pix: %d\n'%(min_pix))
-	lf.write('min_peak: %d\n'%(min_peak))
-	lf.write('mask_file: %s\n'%(mask_file))
-	ef=open(os.path.split(find_list_file)[1]+'eve-rank%d.lst'%(rank),'w',1)
-
-
-
-	for l in job_list:
-		t = TicToc()
-		t.tic()
-		Eiger_file_name=list_s[l][:-1]
-		print('hit finding %d file  out of %d    \n%s'%(l+1,len(job_list),list_s[l]))
-		total_event_no, HIT_counter, hit_rate,HIT_event_no_list=file_hit_finder(list_s[l][:-1],thld,min_pix,min_peak,mask_file=mask_file,Region=Region)
-		lf.write('%s'%(Eiger_file_name))
-		lf.write('\n %d   out of  %d  hits found!'%(HIT_counter,total_event_no))
-		lf.write('\n HIT rate: %.2f %%'%(hit_rate))
-		for event in HIT_event_no_list:
-                	ef.write('%s //%d\n'%(Eiger_file_name,event))
-        t.toc('This Eiger file hit finding took')
-	lf.close()
-	ef.close()
-	print('!!!! Rank %d of %d ALL DONE!!!'%(rank,size))
+    for m in range(len(job_list)):
+        l=job_list[m]
+        Eiger_file_name=list_s[l][:-1]
+        print('hit finding %d file  out of %d    \n%s'%(m,len(job_list),list_s[l]))
+        total_event_no, HIT_counter, hit_rate,HIT_event_no_list=file_hit_finder(list_s[l][:-1],thld,min_pix,min_peak,mask_file=mask_file,Region=Region)
+        lf.write('%s'%(Eiger_file_name))
+        lf.write('\n %d   out of  %d  hits found!'%(HIT_counter,total_event_no))
+        lf.write('\n HIT rate: %.2f %%\n\n'%(hit_rate))
+        for event in HIT_event_no_list:
+            ef.write('%s //%d\n'%(Eiger_file_name,event))
+    lf.close()
+    ef.close()
+    print('!!!! Rank %d of %d ALL DONE!!!'%(rank,size))
+    t.toc('This worker took')
