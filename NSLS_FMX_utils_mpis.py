@@ -232,7 +232,7 @@ if __name__=='__main__':
         total_event_no, HIT_counter, hit_rate,HIT_event_no_list=file_hit_finder_subset(list_s[l][:-1],rank,size,skip,thld,min_pix,min_peak,mask_file=mask_file,Region=Region)
         lf.write('%s'%(Eiger_file_name))
         lf.write('\n %d   out of  %d  hits found!'%(HIT_counter,total_event_no))
-        lf.write('\n HIT rate: %.2f %%'%(hit_rate))
+        lf.write('\n HIT rate: %.2f %%\n'%(hit_rate))
         for event in HIT_event_no_list:
             ef.write('%s //%d\n'%(Eiger_file_name,event))
     lf.close()
