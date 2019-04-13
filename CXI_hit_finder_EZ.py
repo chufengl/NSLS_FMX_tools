@@ -8,7 +8,7 @@ Usage:
 	CXI_hit_finder_EZ.py <CXI_file_name> <thld> <min_pix> <max_pix> <mask_file> <min_peak>
 	thld: pixel value threshold
 	min_pix: minimal number of pixels for a peak
-    max_pix: maximal number of pixels for a peak
+   	max_pix: maximal number of pixels for a peak
 	mask_file: name of the mask file
 	min_peak: minimal number of peaks for a hit
 
