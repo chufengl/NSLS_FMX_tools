@@ -110,15 +110,15 @@ def List_hit_finder(cbf_file_list_file,thld,min_pix,max_pix,min_peak,mask_file='
         x_max=img_arry_s.shape[0]
         y_max=img_arry_s.shape[1]
     elif Region=='Q':
-        x_min=0.5*img_arry_s.shape[0]
-        y_min=0.5*img_arry_s.shape[1]
+        x_min=np.round(0.5*img_arry_s.shape[0]).astype(int)
+        y_min=np.round(0.5*img_arry_s.shape[1]).astype(int)
         x_max=img_arry_s.shape[0]
         y_max=img_arry_s.shape[1]
     elif Region=='C':
-        x_min=0.25*img_arry_s.shape[0]
-        y_min=0.25*img_arry_s.shape[1]
-        x_max=0.75*img_arry_s.shape[0]
-        y_max=0.75*img_arry_s.shape[1]
+        x_min=np.round(0.25*img_arry_s.shape[0]).astype(int)
+        y_min=np.round(0.25*img_arry_s.shape[1]).astype(int)
+        x_max=np.round(0.75*img_arry_s.shape[0]).astype(int)
+        y_max=np.round(0.75*img_arry_s.shape[1]).astype(int)
     else:
         sys.exit('Check the Region option: ALL,Q,C')
 
@@ -145,7 +145,10 @@ def List_hit_finder(cbf_file_list_file,thld,min_pix,max_pix,min_peak,mask_file='
     ef=open(os.path.split(cbf_file_list_file)[1]+'eve.lst','w',1)
 
     lf.write('%s'%(cbf_file_list_file))
-
+    lf.write('\n-----------')
+    lf.write('\nthld: %d\nmin_pix: %d\nmax_pix: %d\nmin_peak: %d\nmask_file: %s\nRegion: %s'%\
+    (thld,min_pix,max_pix,min_peak,mask_file,Region))
+    lf.write('\n-----------')
 
     for event_no in range(len(list_s)):
         img_arry=CBF_img_read(list_s[event_no][:-1])
@@ -177,8 +180,9 @@ def List_hit_finder(cbf_file_list_file,thld,min_pix,max_pix,min_peak,mask_file='
             # print(peakTotalIntensity.shape)
             # print(mean_intensity_filtered.shape)
             peakTotalIntensity[event_no,:nPeaks[event_no]]=mean_intensity_filtered[:nPeaks[event_no],0].reshape(-1,)
-            peakXPosRaw[event_no,:nPeaks[event_no]]=weighted_centroid_filtered[:nPeaks[event_no],0]
-            peakYPosRaw[event_no,:nPeaks[event_no]]=weighted_centroid_filtered[:nPeaks[event_no],1]
+            peakXPosRaw[event_no,:nPeaks[event_no]]=weighted_centroid_filtered[:nPeaks[event_no],0]+x_min
+            peakYPosRaw[event_no,:nPeaks[event_no]]=weighted_centroid_filtered[:nPeaks[event_no],1]+y_min
+
 
         if (peak_no>=min_peak) and (peak_no<=1024):
             HIT_counter+=1
