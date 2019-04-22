@@ -3,12 +3,13 @@ Started on 4-20-2019
 Authors: Chufeng Li, Nadia Zatsepin
 E-mail: chufengl@asu.edu
 Usage:
-    ALBA_SX_uitils.py <cbf_file_list_file> <thld> <min_pix> <max_pix> <mask_file> <min_peak>
+    ALBA_SX_uitils.py <cbf_file_list_file> <thld> <min_pix> <max_pix> <mask_file> <min_peak> <Region>
     thld: pixel value threshold
     min_pix: minimal number of pixels for a peak
     max_pix: maximal number of pixels for a peak
     mask_file: name of the mask file
     min_peak: minimal number of peaks for a hit
+    Region: 'ALL', 'C', 'Q'
 
 Parameter_tweaking mode:
 
@@ -129,6 +130,7 @@ def List_hit_finder(cbf_file_list_file,thld,min_pix,max_pix,min_peak,mask_file='
         m.close()
     elif mask_file=='None':
         mask=np.ones((img_arry_s.shape[0],img_arry_s.shape[1])).astype(bool)
+        mask=mask[x_min:x_max,y_min:y_max]
     else:
         sys.exit('the mask file option is inproper.')
     HIT_counter=0
@@ -147,6 +149,7 @@ def List_hit_finder(cbf_file_list_file,thld,min_pix,max_pix,min_peak,mask_file='
 
     for event_no in range(len(list_s)):
         img_arry=CBF_img_read(list_s[event_no][:-1])
+        img_arry=img_arry[x_min:x_max,y_min:y_max]
         bimg=(img_arry>thld)
         bimg=bimg*mask
         all_labels=measure.label(bimg)
