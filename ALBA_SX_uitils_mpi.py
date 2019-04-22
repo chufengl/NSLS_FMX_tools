@@ -79,7 +79,7 @@ def single_peak_finder(CBF_file_name,thld,min_pix,max_pix,mask_file,interact):
 		plt.imshow(img_arry*(mask.astype(np.int16)),cmap='gray')
 		plt.colorbar()
 	#	plt.clim(0,0.5*thld)
-		plt.clim(0,(img_arry*(mask.astype(np.int16))).mean()*10)
+		plt.clim(0,(img_arry*(mask.astype(np.int16))).mean()*5)
 		plt.scatter(weighted_centroid_filtered[:,1],weighted_centroid_filtered[:,0],edgecolors='r',facecolors='none')
 	#	plt.scatter(beam_center[1],beam_center[0],marker='*',color='b')
 		title_Str=CBF_file_name
