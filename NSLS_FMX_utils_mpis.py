@@ -211,6 +211,8 @@ def Eiger_file_list(find_list_file):
 	find_list_file=os.path.abspath(find_list_file)
 	l=open(find_list_file,'r')
 	list_s=l.readlines()
+	list_s.sort()
+	l.close()
 
 	return list_s
 
