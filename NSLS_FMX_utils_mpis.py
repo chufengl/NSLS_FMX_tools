@@ -180,9 +180,9 @@ def file_hit_finder_subset(Eiger_file_name,rank,size,skip,thld,min_pix,max_pix,m
 		if (peak_no>=min_peak) and (peak_no<=1024):
 			HIT_counter+=1
 			HIT_event_no_list.append(event_no)
-			print('HIT!!!!  %d  Event: %d peaks found'%(event_no,peak_no))
+			print('HIT!!!!   Event  %d: %d peaks found'%(event_no,peak_no))
 		else:
-			print('BLANK!   %d  Event: %d peaks found'%(event_no,peak_no))
+			print('BLANK!    Event  %d: %d peaks found'%(event_no,peak_no))
             #pass
 	peak_list_dict={'Eiger_file_name':Eiger_file_name,'frame_list':frame_list,\
 	'HIT_event_no_list':HIT_event_no_list,'nPeaks':nPeaks.astype(np.int16),\
