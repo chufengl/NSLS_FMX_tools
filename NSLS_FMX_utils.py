@@ -69,7 +69,6 @@ def single_peak_finder(Eiger_file_name,frame_no,thld,min_pix,mask_file='None',in
 	weighted_centroid_filtered=np.zeros((len(label_filtered_sorted),2))
 	for index,value in enumerate(label_filtered_sorted):
 		weighted_centroid_filtered[index,:]=np.array(props[value-1].weighted_centroid)
-#	print('In image: %s \n %5d peaks are found' %(img_file_name, len(label_filtered_sorted)))
 	beam_center=np.array([1492.98,2163.41])
 
 	if interact:
@@ -87,7 +86,7 @@ def single_peak_finder(Eiger_file_name,frame_no,thld,min_pix,mask_file='None',in
 
 
 
-def file_hit_finder(Eiger_file_name,thld,min_pix,max_pix,min_peak,mask_file='None',Region='ALL',lf,pf):
+def file_hit_finder(Eiger_file_name,lf,pf,thld,min_pix,max_pix,min_peak,mask_file='None',Region='ALL'):
 	if Region=='ALL':
 		x_min=0
 		y_min=0
@@ -122,7 +121,7 @@ def file_hit_finder(Eiger_file_name,thld,min_pix,max_pix,min_peak,mask_file='Non
 		mask=m['/data/data'][x_min:x_max,y_min:y_max].astype(bool)
 		m.close()
 	elif mask_file=='None':
-		mask=np.ones_like(img_arry).astype(bool)
+		mask=np.ones_like(img_block[0,:,:]).astype(bool)
 	else:
 		sys.exit('the mask file option is inproper.')
 
@@ -130,8 +129,8 @@ def file_hit_finder(Eiger_file_name,thld,min_pix,max_pix,min_peak,mask_file='Non
 
 	HIT_counter=0
 	HIT_event_no_list=[]
-	peakXPosRaw=np.zeros(chunk_size,1024))
-	peakYPosRaw=np.zeros(chunk_size,1024))
+	peakXPosRaw=np.zeros((chunk_size,1024))
+	peakYPosRaw=np.zeros((chunk_size,1024))
 	pixel_size=np.float(110e-6)#to be changed
 	nPeaks=np.zeros((chunk_size,),dtype=np.int16)
 	peakTotalIntensity=np.zeros((chunk_size,1024))
@@ -185,12 +184,14 @@ def file_hit_finder(Eiger_file_name,thld,min_pix,max_pix,min_peak,mask_file='Non
 			hit_rate_flow=100*HIT_counter/chunk_size
 			lf.write('%s'%(Eiger_file_name))
 			lf.write('\n %d   out of  %d  hits found!'%(HIT_counter,chunk_size))
-			lf.write('\n HIT rate: %.2f %%'%(hit_rate_flow))
+			lf.write('\n HIT rate: %.2f%%/n'%(hit_rate_flow))
 
 			for l in range(chunk_size):
 				event=chunk_id*chunk_size+sub_id
 				hit_tag=int(event in HIT_event_no_list)
-				for peak_id in range(nPeaks):
+
+				for peak_id in range(nPeaks[l]):
+
 					pf.write('%s %d %d %d %d %.2f %.2f %.2f\n'\
 					%(Eiger_file_name,event,hit_tag,nPeaks[l],peak_id,\
 					peakXPosRaw[l,peak_id],peakYPosRaw[l,peak_id],peakTotalIntensity[l,peak_id]))
@@ -201,8 +202,8 @@ def file_hit_finder(Eiger_file_name,thld,min_pix,max_pix,min_peak,mask_file='Non
 			print('HIT rate: %.2f %%'%(hit_rate_flow))
 
 			HIT_counter=0
-			peakXPosRaw=np.zeros(chunk_size,1024))
-			peakYPosRaw=np.zeros(chunk_size,1024))
+			peakXPosRaw=np.zeros((chunk_size,1024))
+			peakYPosRaw=np.zeros((chunk_size,1024))
 			nPeaks=np.zeros((chunk_size,),dtype=np.int16)
 			peakTotalIntensity=np.zeros((chunk_size,1024))
 
@@ -233,7 +234,6 @@ def Eiger_file_list(find_list_file):
 	find_list_file=os.path.abspath(find_list_file)
 	l=open(find_list_file,'r')
 	list_s=l.readlines()
-	list_s=l.readlines()
 	list_s.sort()
 	l.close()
 
@@ -261,12 +261,8 @@ if __name__=='__main__':
 	find_list_file=sys.argv[1]
 	find_list_file=os.path.abspath(find_list_file)
 	list_s=Eiger_file_list(find_list_file)
+	#print(list_s)
 	#Eiger_file_name=sys.argv[1]
-	thld=int(sys.argv[2])
-	min_pix=int(sys.argv[3])
-	mask_file=sys.argv[4]
-	min_peak=int(sys.argv[5])
-	Region=sys.argv[6]
 	thld=int(sys.argv[2])
 	min_pix=int(sys.argv[3])
 	max_pix=int(sys.argv[4])
@@ -281,19 +277,22 @@ if __name__=='__main__':
 	lf.write('max_pix: %d\n'%(max_pix))
 	lf.write('min_peak: %d\n'%(min_peak))
 	lf.write('mask_file: %s\n'%(mask_file))
-	ef=open(os.path.split(find_list_file)[1]+'eve.lst'%(rank),'w',1)
-	pf=open(os.path.split(find_list_file)[1]+'.pk'%(rank),'w',1)
+	ef=open(os.path.split(find_list_file)[1]+'eve.lst','w',1)
+	pf=open(os.path.split(find_list_file)[1]+'.pk','w',1)
 	pf_header='Eiger_file_name event_no hit_tag peak_no peak_id peak_x peak_y peak_Int\n'
 	pf.write(pf_header)
 	for l in range(len(list_s)):
 		Eiger_file_name=list_s[l][:-1]
 		print('hit finding %d file  out of %d    \n%s'%(l+1,len(list_s),list_s[l]))
 		total_event_no, HIT_event_no_list=\
-		file_hit_finder(Eiger_file_name,thld,min_pix,max_pix,min_peak,mask_file=mask_file,Region=Region,lf,pf)
+		file_hit_finder(Eiger_file_name,lf,pf,thld,min_pix,max_pix,min_peak,mask_file=mask_file,Region=Region)
 
 		for event in HIT_event_no_list:
-            ef.write('%s //%d\n'%(Eiger_file_name,event))
+			ef.write('%s //%d\n'%(Eiger_file_name,event))
+		t.toc('it took',restart=True)
+
 	lf.close()
 	pf.close()
 	ef.close()
+
 	print('!!!!ALL DONE!!!')
