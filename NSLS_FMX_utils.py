@@ -68,8 +68,7 @@ def single_peak_finder(Eiger_file_name,frame_no,thld,min_pix,mask_file='None',in
 	area_filtered_sorted=area_filtered[area_sort_ind]
 	weighted_centroid_filtered=np.zeros((len(label_filtered_sorted),2))
 	for index,value in enumerate(label_filtered_sorted):
-
-        weighted_centroid_filtered[index,:]=np.array(props[value-1].weighted_centroid)
+		weighted_centroid_filtered[index,:]=np.array(props[value-1].weighted_centroid)
 #	print('In image: %s \n %5d peaks are found' %(img_file_name, len(label_filtered_sorted)))
 	beam_center=np.array([1492.98,2163.41])
 
