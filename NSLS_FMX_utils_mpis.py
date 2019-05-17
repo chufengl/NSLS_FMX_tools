@@ -38,9 +38,9 @@ def Eiger_img_read(Eiger_file_name,frame_no):
 	f.close()
 	return img_arry
 
-def single_peak_finder(img_arry,Eiger_file_name,frame_no,thld,min_pix,mask_file='None',interact=False):
+def single_peak_finder(Eiger_file_name,frame_no,thld,min_pix,mask_file='None',interact=False):
 
-
+	img_arry=Eiger_img_read(Eiger_file_name,frame_no)
 	bimg=(img_arry>thld)
 
 	if mask_file is not ' None':
@@ -280,7 +280,7 @@ if __name__=='__main__':
 			for peak_id in range(peak_list_dict['nPeaks'][l]):
 				pf.write('%s %d %d %d %d %.2f %.2f %.2f\n'\
 				%(peak_list_dict['Eiger_file_name'],event,hit_tag,peak_list_dict['nPeaks'][l],peak_id,\
-				peak_list_dict['peakXPosRaw'][l][peak_id],peak_list_dict['peakYPosRaw'][l][peak_id],peak_list_dict['peakTotalIntensity'][l][peak_id]))
+				peak_list_dict['peakXPosRaw'][l,peak_id],peak_list_dict['peakYPosRaw'][l,peak_id],peak_list_dict['peakTotalIntensity'][l][peak_id]))
 	lf.close()
 	ef.close()
 	pf.close()
