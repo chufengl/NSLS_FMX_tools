@@ -21,7 +21,7 @@ from skimage import measure, morphology, feature
 import scipy
 import glob
 import h5py
-from mpi4py import MPI
+#from mpi4py import MPI
 from pytictoc import TicToc
 
 def Eiger_img_read(Eiger_file_name,frame_no):
