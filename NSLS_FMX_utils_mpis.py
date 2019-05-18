@@ -258,6 +258,7 @@ if __name__=='__main__':
 	lf.write('max_pix: %d\n'%(max_pix))
 	lf.write('min_peak: %d\n'%(min_peak))
 	lf.write('mask_file: %s\n'%(mask_file))
+	lf.write('Region: %s\n'%(Region))
 	ef=open(os.path.split(find_list_file)[1]+'eve-rank%d.lst'%(rank),'w',1)
 	pf=open(os.path.split(find_list_file)[1]+'-rank%d.pk'%(rank),'w',1)
 	pf_header='Eiger_file_name event_no hit_tag peak_no peak_id peak_x peak_y peak_Int\n'

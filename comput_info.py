@@ -208,7 +208,7 @@ if __name__=='__main__':
     plt.ylabel('computation time per pattern')
     leg_label=['mean_time','max_time','min_time']
     plt.legend(leg_label,loc='upper right')
-    plt.xticks(np.arange(0,110,step=10))
+    plt.xticks(np.arange(0,20,step=1))
     plt.savefig('comp_time.png')
 
     plt.figure(num=2)
