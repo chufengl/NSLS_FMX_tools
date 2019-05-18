@@ -43,12 +43,12 @@ def single_peak_finder(Eiger_file_name,frame_no,thld,min_pix,mask_file='None',in
 	img_arry=Eiger_img_read(Eiger_file_name,frame_no)
 	bimg=(img_arry>thld)
 
-	if mask_file is not ' None':
+	if mask_file!='None':
 		mask_file=os.path.abspath(mask_file)
 		m=h5py.File(mask_file,'r')
 		mask=m['/data/data'].value.astype(bool)
 		m.close()
-	elif mask_file is 'None':
+	elif mask_file=='None':
 		mask=np.ones_like(img_arry).astype(bool)
 	else:
 		sys.exit('the mask file option is inproper.')
@@ -77,10 +77,10 @@ def single_peak_finder(Eiger_file_name,frame_no,thld,min_pix,mask_file='None',in
 
 	if interact:
 		plt.figure(figsize=(15,15))
-		plt.imshow(img_arry*(mask.astype(np.int16)),cmap='jet')
+		plt.imshow(img_arry*(mask.astype(np.int16)),cmap='gray')
 		plt.colorbar()
 	#	plt.clim(0,0.5*thld)
-		plt.clim(0,100)
+		plt.clim(0,50)
 		plt.scatter(weighted_centroid_filtered[:,1],weighted_centroid_filtered[:,0],edgecolors='r',facecolors='none')
 	#	plt.scatter(beam_center[1],beam_center[0],marker='*',color='b')
 		title_Str=Eiger_file_name+'\nEvent: %d '%(frame_no)
