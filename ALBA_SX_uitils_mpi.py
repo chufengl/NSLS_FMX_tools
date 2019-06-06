@@ -1,7 +1,10 @@
 """
 Started on 4-20-2019
-Authors: Chufeng Li, Nadia Zatsepin
-E-mail: chufengl@asu.edu
+Authors: Chufeng Li, Sabine Botha, Nadia Zatsepin
+E-mail: chufengl@asu.edu;
+	sbotha@asu.edu
+	nzatsepi@asu.edu
+	
 Usage:
     ALBA_SX_uitils.py <cbf_file_list_file> <thld> <min_pix> <max_pix> <mask_file> <min_peak> <Region>
     thld: pixel value threshold
