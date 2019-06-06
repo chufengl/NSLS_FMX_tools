@@ -40,53 +40,51 @@ def CBF_img_read(CBF_file_name):
     return img_arry
 def single_peak_finder(CBF_file_name,thld,min_pix,max_pix,mask_file,interact):
 
-	img_arry=CBF_img_read(CBF_file_name)
-	bimg=(img_arry>thld)
+    img_arry=CBF_img_read(CBF_file_name)
+    bimg=(img_arry>thld)
 
-	if mask_file!='None':
-		mask_file=os.path.abspath(mask_file)
-		m=h5py.File(mask_file,'r')
-		mask=m['/data/data'].value.astype(bool)
-		m.close()
-	elif mask_file=='None':
-		mask=np.ones_like(img_arry).astype(bool)
-	else:
-		sys.exit('the mask file option is inproper.')
+    if mask_file!='None':
+        mask_file=os.path.abspath(mask_file)
+        m=h5py.File(mask_file,'r')
+        mask=m['/data/data'].value.astype(bool)
+        m.close()
+    elif mask_file=='None':
+        mask=np.ones_like(img_arry).astype(bool)
+    else:
+        sys.exit('the mask file option is inproper.')
+    bimg=bimg*mask
+    all_labels=measure.label(bimg)
+    props=measure.regionprops(all_labels,img_arry)
 
-	bimg=bimg*mask
-	all_labels=measure.label(bimg)
-	props=measure.regionprops(all_labels,img_arry)
+    area=np.array([r.area for r in props]).reshape(-1,)
+    max_intensity=np.array([r.max_intensity for r in props]).reshape(-1,)
+    #coords=np.array([r.coords for r in props]).reshape(-1,)
+    label=np.array([r.label for r in props]).reshape(-1,)
+    centroid=np.array([np.array(r.centroid).reshape(1,2) for r in props]).reshape((-1,2))
+    weighted_centroid=np.array([r.weighted_centroid for r in props]).reshape(-1,)
+    label_filtered=label[(area>=min_pix)*(area<max_pix)]
+    area_filtered=area[(area>=min_pix)*(area<max_pix)]
+    area_sort_ind=np.argsort(area_filtered)[::-1]
+    label_filtered_sorted=label_filtered[area_sort_ind]
+    area_filtered_sorted=area_filtered[area_sort_ind]
+    weighted_centroid_filtered=np.zeros((len(label_filtered_sorted),2))
+    for index,value in enumerate(label_filtered_sorted):
 
-	area=np.array([r.area for r in props]).reshape(-1,)
-	max_intensity=np.array([r.max_intensity for r in props]).reshape(-1,)
-	#coords=np.array([r.coords for r in props]).reshape(-1,)
-	label=np.array([r.label for r in props]).reshape(-1,)
-	centroid=np.array([np.array(r.centroid).reshape(1,2) for r in props]).reshape((-1,2))
-	weighted_centroid=np.array([r.weighted_centroid for r in props]).reshape(-1,)
-	label_filtered=label[(area>=min_pix)*(area<max_pix)]
-	area_filtered=area[(area>=min_pix)*(area<max_pix)]
-	area_sort_ind=np.argsort(area_filtered)[::-1]
-	label_filtered_sorted=label_filtered[area_sort_ind]
-	area_filtered_sorted=area_filtered[area_sort_ind]
-	weighted_centroid_filtered=np.zeros((len(label_filtered_sorted),2))
-	for index,value in enumerate(label_filtered_sorted):
-
-        	weighted_centroid_filtered[index,:]=np.array(props[value-1].weighted_centroid)
-#	print('In image: %s \n %5d peaks are found' %(img_file_name, len(label_filtered_sorted)))
-	# beam_center=np.array([1492.98,2163.41])
-
-	if interact=='True':
-		plt.figure(figsize=(15,15))
-		plt.imshow(img_arry*(mask.astype(np.int16)),cmap='gray')
-		plt.colorbar()
-	#	plt.clim(0,0.5*thld)
-		plt.clim(0,(img_arry*(mask.astype(np.int16))).mean()*5)
-		plt.scatter(weighted_centroid_filtered[:,1],weighted_centroid_filtered[:,0],edgecolors='r',facecolors='none')
-	#	plt.scatter(beam_center[1],beam_center[0],marker='*',color='b')
-		title_Str=CBF_file_name
-		plt.title(title_Str)
-		plt.show()
-	return label_filtered_sorted,weighted_centroid_filtered,props
+        weighted_centroid_filtered[index,:]=np.array(props[value-1].weighted_centroid)
+        #	print('In image: %s \n %5d peaks are found' %(img_file_name, len(label_filtered_sorted)))
+        # beam_center=np.array([1492.98,2163.41])
+    if interact=='True':
+        plt.figure(figsize=(15,15))
+        plt.imshow(img_arry*(mask.astype(np.int16)),cmap='gray')
+        #	plt.clim(0,0.5*thld)
+        plt.clim(0,(img_arry*(mask.astype(np.int16))).mean()*20)
+        plt.colorbar()
+        plt.scatter(weighted_centroid_filtered[:,1],weighted_centroid_filtered[:,0],edgecolors='r',facecolors='none')
+        #	plt.scatter(beam_center[1],beam_center[0],marker='*',color='b')
+        title_Str=CBF_file_name
+        plt.title(title_Str)
+        plt.show()
+    return label_filtered_sorted,weighted_centroid_filtered,props
 
 def CBF_file_list(find_list_file):
 	find_list_file=os.path.abspath(find_list_file)
@@ -170,7 +168,7 @@ def List_hit_finder(cbf_file_list_file,thld,min_pix,max_pix,min_peak,mask_file='
         weighted_centroid_filtered=np.zeros((len(label_filtered_sorted),2))
         max_intensity_filtered=np.zeros((len(label_filtered_sorted),1))
         mean_intensity_filtered=np.zeros((len(label_filtered_sorted),1))
-		peak_no=0
+        peak_no=0
         for index,value in enumerate(label_filtered_sorted):
             weighted_centroid_filtered[index,:]=np.array(props[value-1].weighted_centroid)
             max_intensity_filtered[index,:]=props[value-1].max_intensity
