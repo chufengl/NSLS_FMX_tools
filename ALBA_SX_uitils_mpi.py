@@ -170,6 +170,7 @@ def List_hit_finder(cbf_file_list_file,thld,min_pix,max_pix,min_peak,mask_file='
         weighted_centroid_filtered=np.zeros((len(label_filtered_sorted),2))
         max_intensity_filtered=np.zeros((len(label_filtered_sorted),1))
         mean_intensity_filtered=np.zeros((len(label_filtered_sorted),1))
+		peak_no=0
         for index,value in enumerate(label_filtered_sorted):
             weighted_centroid_filtered[index,:]=np.array(props[value-1].weighted_centroid)
             max_intensity_filtered[index,:]=props[value-1].max_intensity
